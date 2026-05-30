@@ -2,5 +2,3 @@
 # Ignore the large cleaned spatial data file
 data/silver/cleaned_spatial_data.csv
 
-# Optional: Safely ignore any future massive gold datasets
-data/gold/
