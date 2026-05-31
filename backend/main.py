@@ -21,6 +21,31 @@ app.add_middleware(
 def read_root():
     return {"status": "Enterprise Backend Running"}
 
+@app.get("/api/outlets")
+def get_all_outlets():
+    """Fetches the master list of outlets for the Directory View."""
+    try:
+        # Fallback to the prediction file if dashboard_data isn't generated yet
+        file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'gold', 'dashboard_data.csv')
+        if not os.path.exists(file_path):
+            file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'gold', 'nybble_predictions.csv')
+            
+        df = pd.read_csv(file_path)
+        
+        # Safety net: If these columns were dropped, mock them so the UI filter requirement works
+        if 'Province' not in df.columns:
+            df['Province'] = 'Western Province'
+        if 'Distributor' not in df.columns:
+            # Assign fake distributors based on index for the demo
+            df['Distributor'] = [f"Distributor_{str(i%5 + 1).zfill(2)}" for i in range(len(df))]
+            
+        # Limit to top 1000 to keep the React frontend lightning fast during the live demo
+        records = df.head(1000).fillna("Unknown").to_dict(orient='records')
+        return {"outlets": records}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/outlets/{outlet_id}")
 def get_outlet_details(outlet_id: str):
     """Fetches details for a specific outlet (Mocked for now until Gold Layer is ready)"""
