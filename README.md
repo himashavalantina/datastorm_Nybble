@@ -14,8 +14,8 @@ data_storm_7/
 │   └── main.py                   # REST endpoints and Gemini zero-shot prompt logic
 ├── frontend/                     # React Enterprise Dashboard (Dark Mode / Neon Theme)
 │   ├── src/
-│   │   ├── App.js                # Core UI, XAI interactions, and Recharts integration
-│   │   └── App.css               # Styling and animations
+│   │   ├── App.js                # Core UI, XAI interactions, and Dataset Directory
+│       └── App.css               # Styling, animations, and glassmorphic UI
 │   └── package.json
 ├── data/
 │   ├── bronze/                   # Raw, unmodified data from source (Git-Ignored)
@@ -90,7 +90,7 @@ Bash
 
 ### 4. Launching the Enterprise XAI Dashboard
 
-The web application requires both the Python backend and React frontend to run concurrently.
+The web application features a full dataset directory with Distributor/Province filtering, comparative visualization charts, and a dynamic LLM Strategic Advisor. It requires both the Python backend and React frontend to run concurrently.
 
 Terminal 1(Backend):
 ```Bash
