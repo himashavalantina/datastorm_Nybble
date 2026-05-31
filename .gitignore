@@ -1,3 +1,7 @@
+
+# Ignore the large cleaned spatial data file
+data/silver/cleaned_spatial_data.csv
+
 data/bronze/transactions_history_final.csv
 data/bronze/outlet_master.csv
 data/bronze/outlet_coordinates.csv
