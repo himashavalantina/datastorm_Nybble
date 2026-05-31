@@ -223,7 +223,7 @@ function App() {
                           <XAxis dataKey="name" stroke="#ffffff" fontSize={12} tickLine={false} axisLine={false}/>
                           <Bar dataKey="Volume" radius={[4, 4, 0, 0]}>
                             {chartData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={index === 0 ? '#00BFFF' : '#0BDA51'} />
+                              <Cell key={`cell-${index}`} fill={index === 0 ? '#00BFFF' : '#29E373'} />
                             ))}
                           </Bar>
                         </BarChart>
