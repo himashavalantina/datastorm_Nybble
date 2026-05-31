@@ -1,0 +1,5 @@
+data/bronze/transactions_history_final.csv
+data/bronze/outlet_master.csv
+data/bronze/outlet_coordinates.csv
+data/bronze/holiday_list.csv
+data/bronze/distributor_seasonality_details.csv
