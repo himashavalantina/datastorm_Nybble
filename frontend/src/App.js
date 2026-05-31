@@ -75,28 +75,35 @@ function App() {
     }
   };
 
-  const volumeLift = outletData ? (((outletData.Predicted_Maximum_Liters - outletData.Base_Historical_Max) / outletData.Base_Historical_Max) * 100).toFixed(1) : 0;
+  // --- Dynamic Fallback Mappings to Handle Raw Production Matrix Keys ---
+  const historicalCeiling = outletData ? (outletData.Base_Historical_Max ?? outletData.HISTORICAL_MAX_VOLUME ?? 0) : 0;
+  const latentPotential = outletData ? (outletData.Predicted_Maximum_Liters ?? outletData.MAXIMUM_MONTHLY_LITERS ?? 0) : 0;
+  const educationHubs = outletData ? (outletData.Schools_Nearby ?? outletData.SCHOOLS_COUNT ?? 0) : 0;
+  const saturationIndex = outletData ? (outletData.Market_Saturation_Index ?? outletData.SATURATION_FACTOR ?? 1.0) : 1.0;
+
+  // Calculate volume lift percentage based on mapped production metrics
+  const volumeLift = historicalCeiling > 0 ? (((latentPotential - historicalCeiling) / historicalCeiling) * 100).toFixed(1) : 0;
   
   const getSaturationBadge = (index) => {
-    if (index > 0.7) return { text: 'HIGH SATURATION', class: 'badge-high' };
-    if (index > 0.4) return { text: 'MEDIUM SATURATION', class: 'badge-mid' };
+    if (index < 0.6) return { text: 'HIGH SATURATION', class: 'badge-high' };
+    if (index < 0.9) return { text: 'MEDIUM SATURATION', class: 'badge-mid' };
     return { text: 'LOW SATURATION', class: 'badge-low' };
   };
 
   const chartData = outletData ? [
-    { name: 'Historical Max', Volume: outletData.Base_Historical_Max },
-    { name: 'Predicted Potential', Volume: outletData.Predicted_Maximum_Liters }
+    { name: 'Historical Max', Volume: historicalCeiling },
+    { name: 'Predicted Potential', Volume: latentPotential }
   ] : [];
 
   // Filter Logic
   const filteredOutlets = allOutlets.filter(o => {
-    const matchProv = filterProv === 'All' || o.Province === filterProv;
-    const matchDist = filterDist === 'All' || o.Distributor === filterDist;
+    const matchProv = filterProv === 'All' || o.Province === filterProv || o.PROVINCE === filterProv;
+    const matchDist = filterDist === 'All' || o.Distributor === filterDist || o.DISTRIBUTOR_ID === filterDist;
     return matchProv && matchDist;
   });
 
-  const uniqueProvinces = ['All', ...new Set(allOutlets.map(o => o.Province))];
-  const uniqueDistributors = ['All', ...new Set(allOutlets.map(o => o.Distributor))];
+  const uniqueProvinces = ['All', ...new Set(allOutlets.map(o => o.Province || o.PROVINCE).filter(Boolean))];
+  const uniqueDistributors = ['All', ...new Set(allOutlets.map(o => o.Distributor || o.DISTRIBUTOR_ID).filter(Boolean))];
 
   return (
     <div className="app-wrapper">
@@ -162,13 +169,13 @@ function App() {
                   </thead>
                   <tbody>
                     {filteredOutlets.map(outlet => (
-                      <tr key={outlet.Outlet_ID}>
-                        <td className="highlight-cell">{outlet.Outlet_ID}</td>
-                        <td>{outlet.Province}</td>
-                        <td>{outlet.Distributor}</td>
-                        <td className="volume-cell">{parseFloat(outlet.Predicted_Maximum_Liters || outlet.Maximum_Monthly_Liters || 0).toFixed(1)} L</td>
+                      <tr key={outlet.Outlet_ID || outlet.OUTLET_ID}>
+                        <td className="highlight-cell">{outlet.Outlet_ID || outlet.OUTLET_ID}</td>
+                        <td>{outlet.Province || outlet.PROVINCE || 'Western Province'}</td>
+                        <td>{outlet.Distributor || outlet.DISTRIBUTOR_ID || 'Unknown'}</td>
+                        <td className="volume-cell">{parseFloat(outlet.Predicted_Maximum_Liters || outlet.Maximum_Monthly_Liters || outlet.MAXIMUM_MONTHLY_LITERS || 0).toFixed(1)} L</td>
                         <td>
-                          <button className="analyze-sm-btn" onClick={() => fetchMetrics(outlet.Outlet_ID)}>Analyze →</button>
+                          <button className="analyze-sm-btn" onClick={() => fetchMetrics(outlet.Outlet_ID || outlet.OUTLET_ID)}>Analyze →</button>
                         </td>
                       </tr>
                     ))}
@@ -209,11 +216,11 @@ function App() {
                     
                     <div className="metric-row">
                       <span className="metric-label">Historical Ceiling:</span>
-                      <span className="metric-value">{outletData.Base_Historical_Max} L</span>
+                      <span className="metric-value">{historicalCeiling} L</span>
                     </div>
                     <div className="metric-row highlight">
                       <span className="metric-label">Latent Potential:</span>
-                      <span className="metric-value">{outletData.Predicted_Maximum_Liters} L</span>
+                      <span className="metric-value">{latentPotential} L</span>
                     </div>
 
                     <div className="chart-container">
@@ -235,12 +242,12 @@ function App() {
                     <h3>CATCHMENT FACTORS</h3>
                     <div className="metric-row">
                       <span className="metric-label">Nearby Education Hubs:</span>
-                      <span className="metric-value">{outletData.Schools_Nearby}</span>
+                      <span className="metric-value">{educationHubs}</span>
                     </div>
                     <div className="metric-row">
                       <span className="metric-label">Market Saturation:</span>
-                      <span className={`saturation-badge ${getSaturationBadge(outletData.Market_Saturation_Index).class}`}>
-                        {getSaturationBadge(outletData.Market_Saturation_Index).text}
+                      <span className={`saturation-badge ${getSaturationBadge(saturationIndex).class}`}>
+                        {getSaturationBadge(saturationIndex).text}
                       </span>
                     </div>
                   </section>
