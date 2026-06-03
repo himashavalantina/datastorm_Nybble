@@ -16,7 +16,7 @@ app.add_middleware(
 )
 
 # TODO: Add your Gemini API Key here (or use env variables)
-# client = genai.Client(api_key="YOUR_GEMINI_API_KEY")
+client = genai.Client(api_key="PASTE YOUR API KEY HERE")
 
 @app.get("/")
 def read_root():
@@ -26,26 +26,38 @@ def read_root():
 def get_all_outlets():
     """Fetches the master list of outlets for the Directory View."""
     try:
-        file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'silver', 'cleaned_spatial_data.csv')
+        # Primary source: full enriched dataset with all 20,000 outlets, real Province + Distributor
+        file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'gold', 'all_outlets_enriched.csv')
+
+        # Fallback to predictions if enriched file is missing
         if not os.path.exists(file_path):
             file_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'gold', 'nybble_predictions.csv')
-            
+
         df = pd.read_csv(file_path)
-        
-        # Handle structural key lookups cleanly for the data directory table
-        id_col = [c for c in df.columns if c.lower() == 'outlet_id'][0]
-        df['Outlet_ID'] = df[id_col]
-        
-        if 'Province' not in df.columns and 'PROVINCE' not in df.columns:
-            df['Province'] = 'Western Province'
-        if 'Distributor' not in df.columns and 'DISTRIBUTOR_ID' not in df.columns:
-            df['Distributor'] = [f"Distributor_{str(i%5 + 1).zfill(2)}" for i in range(len(df))]
-            
-        records = df.head(1000).fillna("Unknown").to_dict(orient='records')
+
+        # Normalise column names so the frontend filter logic always finds them
+        df.columns = df.columns.str.strip()
+
+        # Ensure Outlet_ID column exists under a consistent key
+        id_col = next((c for c in df.columns if c.lower() == 'outlet_id'), None)
+        if id_col:
+            df['Outlet_ID'] = df[id_col]
+
+        # Map Distributor_ID -> Distributor so frontend filter works with both keys
+        if 'Distributor_ID' in df.columns and 'Distributor' not in df.columns:
+            df['Distributor'] = df['Distributor_ID']
+
+        # Rename predicted volume column so the table renders correctly
+        if 'Maximum_Monthly_Liters' in df.columns and 'Predicted_Maximum_Liters' not in df.columns:
+            df['Predicted_Maximum_Liters'] = df['Maximum_Monthly_Liters']
+
+        # Return ALL records - no artificial cap
+        records = df.fillna("Unknown").to_dict(orient='records')
         return {"outlets": records}
-        
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/api/outlets/{outlet_id}")
 def get_outlet_details(outlet_id: str):
@@ -134,11 +146,11 @@ def generate_xai_explanation(outlet_id: str):
     
     try:
         # NOTE: Uncomment this block when you attach your live API Key environment string!
-        # response = client.models.generate_content(
-        #     model='gemini-2.5-flash',
-        #     contents=prompt
-        # )
-        # explanation = response.text
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
+        explanation = response.text
         
         explanation = f"Analytical Dashboard Insights: Predicted volume balances out at {data['Predicted_Maximum_Liters']}L. Proximity logs confirm {data['Schools_Nearby']} education assets expanding immediate consumer foot traffic limits, while micro-market competition triggers a protective saturation index bounding factor of {data['Market_Saturation_Index']} to stabilize demand allocations."
         
