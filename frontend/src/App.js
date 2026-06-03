@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from 'rechar
 import './App.css';
 
 function App() {
-  const [activeView, setActiveView] = useState('analyze'); // 'analyze' or 'browse'
+  const [activeView, setActiveView] = useState('landing'); // 'landing', 'analyze' or 'browse'
   const [outletId, setOutletId] = useState('OUT_00001');
   const [outletData, setOutletData] = useState(null);
   const [explanation, setExplanation] = useState('');
@@ -127,6 +127,9 @@ function App() {
 
         {/* View Navigation Tabs */}
         <div className="nav-tabs">
+          <button className={activeView === 'landing' ? 'tab active-tab' : 'tab'} onClick={() => setActiveView('landing')}>
+            🏠 Project Overview
+          </button>
           <button className={activeView === 'browse' ? 'tab active-tab' : 'tab'} onClick={() => setActiveView('browse')}>
             📂 Dataset Directory
           </button>
@@ -137,6 +140,136 @@ function App() {
 
         <main className="dashboard-content">
           
+          {/* LANDING VIEW */}
+          {activeView === 'landing' && (
+            <section className="landing-section slide-up">
+              {/* Hero Banner */}
+              <div className="hero-banner">
+                <div className="hero-content">
+                  <div className="badge-glow">PHASE 2 PROTOTYPE</div>
+                  <h1 className="hero-title">
+                    Enterprise Latent <span className="gradient-text">Potential Estimator</span>
+                  </h1>
+                  <p className="hero-lead">
+                    An advanced predictive model and decision-intelligence platform estimating the Maximum Monthly Purchase Potential of traditional FMCG retail outlets using spatial data engineering, distance-decay causal math, and Linear Programming budget optimization.
+                  </p>
+                  <div className="hero-actions">
+                    <button className="cta-btn primary-cta" onClick={() => setActiveView('analyze')}>
+                      ⚡ Launch Outlet Targeting
+                    </button>
+                    <button className="cta-btn secondary-cta" onClick={() => setActiveView('browse')}>
+                      📂 Browse Dataset
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Stats Banner */}
+              <div className="quick-stats">
+                <div className="stat-card">
+                  <span className="stat-num">5M LKR</span>
+                  <span className="stat-lbl">Optimized Budget Allocator</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-num">Western</span>
+                  <span className="stat-lbl">Province Target Outlets</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-num">Gemini AI</span>
+                  <span className="stat-lbl">Zero-Shot Strategic Advisor</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-num">PuLP Solver</span>
+                  <span className="stat-lbl">Simplex LP Algorithm</span>
+                </div>
+              </div>
+
+              {/* Pipeline Architecture */}
+              <div className="architecture-section">
+                <h2>PIPELINE & ARCHITECTURE</h2>
+                <p className="section-desc">
+                  Our solution implements a modern Lakehouse architecture with a structured data flow, progressing from raw spatial scraping to actionable explainable AI insights.
+                </p>
+                <div className="architecture-grid">
+                  <div className="arch-card bronze">
+                    <div className="card-num">01</div>
+                    <h3>Bronze Layer</h3>
+                    <span className="subtitle-sm">Spatial Extraction</span>
+                    <p>Overpass API scraping collects coordinates of competitive retail environments. Computes spatial arrays based on exact geometric coordinates using Haversine distance equations.</p>
+                    <div className="tech-tags">
+                      <span>Python</span>
+                      <span>Overpass QL</span>
+                      <span>Haversine Math</span>
+                    </div>
+                  </div>
+
+                  <div className="arch-card silver">
+                    <div className="card-num">02</div>
+                    <h3>Silver Layer</h3>
+                    <span className="subtitle-sm">Data Forensics & Safety</span>
+                    <p>Enforces automated data quality rules, checks formatting prefixes, and parses stringified coordinates safely using abstract syntax tree verification to route corrupt entries to quarantine.</p>
+                    <div className="tech-tags">
+                      <span>Pandas</span>
+                      <span>ast.literal_eval</span>
+                      <span>Quarantine Logs</span>
+                    </div>
+                  </div>
+
+                  <div className="arch-card gold">
+                    <div className="card-num">03</div>
+                    <h3>Gold Layer</h3>
+                    <span className="subtitle-sm">Causal Mathematics & Optimization</span>
+                    <p>Calculates Gaussian distance-decay factor and outlet density saturation index. Solves Western Province budget optimization in micro-seconds using PuLP's Simplex Linear Programming.</p>
+                    <div className="tech-tags">
+                      <span>Gaussian Decay</span>
+                      <span>PuLP (Simplex)</span>
+                      <span>Linear Programming</span>
+                    </div>
+                  </div>
+
+                  <div className="arch-card xai">
+                    <div className="card-num">04</div>
+                    <h3>XAI Core</h3>
+                    <span className="subtitle-sm">Explainable AI Strategic Advisor</span>
+                    <p>Translates complex mathematical coefficient features and localized saturation indicators into direct, non-technical FMCG strategies utilizing zero-shot LLM guidance prompts.</p>
+                    <div className="tech-tags">
+                      <span>FastAPI</span>
+                      <span>Gemini LLM</span>
+                      <span>Explainable AI</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Project Methodology / Overview Card */}
+              <div className="methodology-card">
+                <div className="methodology-left">
+                  <h3>Strategic Optimization Objectives</h3>
+                  <ul>
+                    <li>
+                      <strong>Outlet Latent Potential:</strong> Calculates the historical sales ceiling for each distributor area and extrapolates maximum reachable purchase volumes based on local education hubs.
+                    </li>
+                    <li>
+                      <strong>Proximity Saturation:</strong> Weighs competitor density against distance, scaling down potential in highly cluttered sectors to avoid overestimating volume.
+                    </li>
+                    <li>
+                      <strong>Simplex Allocation:</strong> Runs an optimization routine maximizing expected volume gain under a strict total budget limit, prioritizing outlets with the highest growth ROI.
+                    </li>
+                  </ul>
+                </div>
+                <div className="methodology-right">
+                  <h3>Tech Stack & Tooling</h3>
+                  <div className="tech-list">
+                    <div className="tech-item"><strong>Backend:</strong> FastAPI, Python 3.9+, Uvicorn, Google GenAI SDK</div>
+                    <div className="tech-item"><strong>Frontend:</strong> React, Recharts, Responsive CSS Grid</div>
+                    <div className="tech-item"><strong>Optimization:</strong> PuLP solver (COIN-OR CBC / Simplex)</div>
+                    <div className="tech-item"><strong>Geospatial:</strong> Overpass QL, OpenStreetMap API</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* DIRECTORY VIEW */}
           {activeView === 'browse' && (
             <section className="directory-section slide-up">
