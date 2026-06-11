@@ -19,7 +19,7 @@ function App() {
 
   // Fetch Directory Data on Load (POINTED TO VERCEL)
   useEffect(() => {
-    fetch(`https://datastorm-backend.vercel.app/api/outlets`)
+    fetch(`http://localhost:8000/api/outlets`)
       .then(res => res.json())
       .then(data => setAllOutlets(data.outlets || []))
       .catch(err => console.error("Failed to load directory", err));
@@ -50,7 +50,7 @@ function App() {
     setDisplayedText('');
     
     try {
-      const response = await fetch(`https://datastorm-backend.vercel.app/api/outlets/${targetId}`);
+      const response = await fetch(`http://localhost:8000/api/outlets/${targetId}`, { cache: 'no-store' });
       if (!response.ok) throw new Error('Outlet not found');
       const data = await response.json();
       setOutletData(data);
@@ -65,7 +65,7 @@ function App() {
   const generateInsights = async () => {
     setLoadingAi(true);
     try {
-      const response = await fetch(`https://datastorm-backend.vercel.app/api/explain/${outletId}`, { method: 'POST' });
+      const response = await fetch(`http://localhost:8000/api/explain/${outletId}`, { method: 'POST' });
       const data = await response.json();
       setExplanation(data.explanation);
     } catch (err) {
@@ -80,6 +80,14 @@ function App() {
   const latentPotential = outletData ? (outletData.Predicted_Maximum_Liters ?? outletData.MAXIMUM_MONTHLY_LITERS ?? 0) : 0;
   const educationHubs = outletData ? (outletData.Schools_Nearby ?? outletData.SCHOOLS_COUNT ?? 0) : 0;
   const saturationIndex = outletData ? (outletData.Market_Saturation_Index ?? outletData.SATURATION_FACTOR ?? 1.0) : 1.0;
+  const tradeSpend = outletData ? (outletData.Trade_Spend_Allocation ?? 0) : 0;
+  const inWpScope = outletData ? (outletData.In_WP_Scope ?? false) : false;
+
+  const getBudgetBadge = () => {
+    if (tradeSpend > 0) return { cls: 'budget-selected', icon: '✅', label: 'SELECTED FOR INVESTMENT', sub: 'LP Optimizer Selected This Outlet' };
+    if (inWpScope) return { cls: 'budget-exhausted', icon: '⚠️', label: 'NOT SELECTED', sub: 'Western Province — Budget Fully Exhausted by Higher-ROI Outlets' };
+    return { cls: 'budget-skipped', icon: '⛔', label: 'OUT OF SCOPE', sub: 'Non-Western Province — Not Part of This Budget Allocation Round' };
+  };
 
   // Calculate volume lift percentage based on mapped production metrics
   const volumeLift = historicalCeiling > 0 ? (((latentPotential - historicalCeiling) / historicalCeiling) * 100).toFixed(1) : 0;
@@ -95,15 +103,19 @@ function App() {
     { name: 'Predicted Potential', Volume: latentPotential }
   ] : [];
 
-  // Filter Logic
+  // Filter Logic — robust trim + all column-name variants
+  const getProvince = (o) => (o.Province || o.PROVINCE || '').toString().trim();
+  const getDistributor = (o) => (o.Distributor || o.Distributor_ID || o.DISTRIBUTOR_ID || '').toString().trim();
+
   const filteredOutlets = allOutlets.filter(o => {
-    const matchProv = filterProv === 'All' || o.Province === filterProv || o.PROVINCE === filterProv;
-    const matchDist = filterDist === 'All' || o.Distributor === filterDist || o.DISTRIBUTOR_ID === filterDist;
+    const matchProv = filterProv === 'All' || getProvince(o) === filterProv;
+    const matchDist = filterDist === 'All' || getDistributor(o) === filterDist;
     return matchProv && matchDist;
   });
 
-  const uniqueProvinces = ['All', ...new Set(allOutlets.map(o => o.Province || o.PROVINCE).filter(Boolean))];
-  const uniqueDistributors = ['All', ...new Set(allOutlets.map(o => o.Distributor || o.DISTRIBUTOR_ID).filter(Boolean))];
+  const uniqueProvinces = ['All', ...new Set(allOutlets.map(getProvince).filter(Boolean))];
+  const uniqueDistributors = ['All', ...new Set(allOutlets.map(getDistributor).filter(Boolean))];
+
 
   return (
     <div className="app-wrapper">
@@ -383,6 +395,31 @@ function App() {
                         {getSaturationBadge(saturationIndex).text}
                       </span>
                     </div>
+
+                    <hr className="divider" />
+
+                    <h3>💰 BUDGET ALLOCATION</h3>
+                    {(() => { const b = getBudgetBadge(); return (
+                      <div className={`budget-status-banner ${b.cls}`}>
+                        <div className="budget-status-icon">{b.icon}</div>
+                        <div className="budget-status-text">
+                          <span className="budget-status-label">{b.label}</span>
+                          <span className="budget-status-sub">{b.sub}</span>
+                        </div>
+                      </div>
+                    ); })()}
+                    {tradeSpend > 0 && (
+                      <div className="budget-details">
+                        <div className="budget-detail-row">
+                          <span className="metric-label">Trade Spend Allocated:</span>
+                          <span className="budget-amount">LKR {tradeSpend.toLocaleString()}</span>
+                        </div>
+                        <div className="budget-detail-row">
+                          <span className="metric-label">Outlet Investment Tier:</span>
+                          <span className="tier-badge">{tradeSpend >= 25000 ? 'LARGE' : tradeSpend >= 15000 ? 'MEDIUM' : 'SMALL'}</span>
+                        </div>
+                      </div>
+                    )}
                   </section>
 
                   <section className="xai-card">

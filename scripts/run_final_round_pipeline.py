@@ -143,10 +143,19 @@ def run_gold_layer_final():
     df_jan_season = df_seasonality[is_january].groupby(dist_col)['SEASONALITY_INDEX'].mean().reset_index()
     df_jan_season.columns = ['DISTRIBUTOR_ID', 'SEASONALITY_INDEX']
     
-    dist_cols = [c for c in df_distributors.columns if 'DIST' in c or 'NAME' in c]
-    coord_dist_col = dist_cols[0] if dist_cols else [c for c in df_distributors.columns if c != 'OUTLET_ID'][0]
-    df_dist_clean = df_distributors[['OUTLET_ID', coord_dist_col]].copy()
-    df_dist_clean.columns = ['OUTLET_ID', 'DISTRIBUTOR_ID']
+    # Use real distributor mapping from the enriched dataset if available
+    enriched_path = '../data/gold/all_outlets_enriched.csv'
+    if os.path.exists(enriched_path):
+        df_dist_clean = pd.read_csv(enriched_path)[['Outlet_ID', 'Distributor_ID']].copy()
+        df_dist_clean.columns = ['OUTLET_ID', 'DISTRIBUTOR_ID']
+        print(" Loaded real distributor mapping from all_outlets_enriched.csv")
+    else:
+        # Fallback to coordinate column mapping (latitude) if enriched dataset is missing
+        dist_cols = [c for c in df_distributors.columns if 'DIST' in c or 'NAME' in c]
+        coord_dist_col = dist_cols[0] if dist_cols else [c for c in df_distributors.columns if c != 'OUTLET_ID'][0]
+        df_dist_clean = df_distributors[['OUTLET_ID', coord_dist_col]].copy()
+        df_dist_clean.columns = ['OUTLET_ID', 'DISTRIBUTOR_ID']
+        print(f" Warning: Enriched mapping not found. Using fallback column: {coord_dist_col}")
     
     print("\n Executing transactional joins into Gold Layer...")
     for df in [df_base, df_outlets, df_dist_clean, df_jan_season, df_spatial_data]:
@@ -186,7 +195,7 @@ def run_gold_layer_final():
     df_gold_optimizer_input.rename(columns={'Outlet_Id': 'Outlet_ID', 'Distributor_Id': 'Distributor_ID', 'Maximum_Monthly_Liters': 'Maximum_Monthly_Liters', 'Historical_Max_Volume': 'Historical_Max_Volume', 'Outlet_Size': 'Outlet_Size'}, inplace=True)
     
     optimize_marketing_spend(df_gold_optimizer_input, total_budget=5000000)
-    print("\n🎉 ALL DELIVERABLES SYNCHRONIZED AND SECURED SUCCESSFULLY!")
+    print("\nALL DELIVERABLES SYNCHRONIZED AND SECURED SUCCESSFULLY!")
 
 if __name__ == "__main__":
     run_gold_layer_final()

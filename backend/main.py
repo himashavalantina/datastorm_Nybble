@@ -46,6 +46,28 @@ except Exception as e:
     print(f"Warning: Could not load initial data file: {e}")
     global_df = pd.DataFrame()
 
+# Load spatial distance arrays (school, competitor, etc.) — separate Silver layer file
+_abs_dir = os.path.dirname(os.path.abspath(__file__))
+try:
+    _spatial_path = os.path.join(_abs_dir, '..', 'data', 'silver', 'cleaned_spatial_data.csv')
+    global_spatial_df = pd.read_csv(_spatial_path)
+    global_spatial_df.columns = global_spatial_df.columns.str.strip()
+    global_spatial_df['MATCH_KEY'] = global_spatial_df['Outlet_ID'].astype(str).str.strip().str.upper()
+    print(f"Spatial data loaded: {len(global_spatial_df)} outlets")
+except Exception as e:
+    print(f"Warning: Could not load spatial data: {e}")
+    global_spatial_df = pd.DataFrame()
+
+# Load LP budget allocations globally (Gold layer)
+try:
+    _budget_path = os.path.join(_abs_dir, '..', 'data', 'gold', 'nybble_budget_allocations.csv')
+    global_budget_df = pd.read_csv(_budget_path)
+    global_budget_df['MATCH_KEY'] = global_budget_df['Outlet_ID'].astype(str).str.strip().str.upper()
+    print(f"Budget data loaded: {len(global_budget_df)} outlets, {(global_budget_df['Trade_Spend_Allocation']>0).sum()} selected")
+except Exception as e:
+    print(f"Warning: Could not load budget data: {e}")
+    global_budget_df = pd.DataFrame()
+
 @app.get("/")
 def read_root():
     return {"status": "Enterprise Backend Running", "data_loaded": not global_df.empty}
@@ -89,10 +111,18 @@ def get_outlet_details(outlet_id: str):
             except Exception:
                 return 0
 
-        schools = count_array_elements(row_data.get('school_distances_m', '[]'))
-        competitors = count_array_elements(row_data.get('competitor_distances_m', '[]'))
+        # --- Spatial lookup from dedicated Silver layer CSV ---
+        schools = 0
+        competitors = 0
+        if not global_spatial_df.empty:
+            sp_match = global_spatial_df[global_spatial_df['MATCH_KEY'] == target_id]
+            if not sp_match.empty:
+                sp_row = sp_match.iloc[0]
+                schools = count_array_elements(sp_row.get('school_distances_m', '[]'))
+                competitors = count_array_elements(sp_row.get('competitor_distances_m', '[]'))
+
         saturation_index = float(1.0 / (1.0 + 0.15 * competitors)) if competitors > 0 else 1.0
-        
+
         if 'Base_Historical_Max' in global_df.columns:
             dynamic_historical_base = float(row_data['Base_Historical_Max'])
         else:
@@ -108,8 +138,28 @@ def get_outlet_details(outlet_id: str):
              calculated_potential = float(row_data['Maximum_Monthly_Liters'])
         else:
             calculated_potential = int(dynamic_historical_base + (schools * 250) - (competitors * 45))
-            if calculated_potential < dynamic_historical_base: 
+            if calculated_potential < dynamic_historical_base:
                 calculated_potential = dynamic_historical_base
+
+        # --- Determine WP scope from the outlet's Province in the master data ---
+        province_val = ''
+        for prov_col in ['Province', 'PROVINCE']:
+            if prov_col in global_df.columns:
+                province_val = str(row_data.get(prov_col, '')).strip()
+                break
+        in_wp_scope = province_val == 'Western Province'
+
+        # --- Budget lookup from globally pre-loaded Gold layer CSV ---
+        trade_spend = 0.0
+        if not global_budget_df.empty:
+            budget_match = global_budget_df[global_budget_df['MATCH_KEY'] == target_id]
+            if not budget_match.empty:
+                trade_spend = float(budget_match.iloc[0]['Trade_Spend_Allocation'])
+
+        if in_wp_scope:
+            allocation_status = "SELECTED" if trade_spend > 0 else "NOT SELECTED (Budget Exhausted)"
+        else:
+            allocation_status = "OUT OF SCOPE (Non-Western Province)"
 
         return {
             "Outlet_ID": str(outlet_id),
@@ -117,7 +167,10 @@ def get_outlet_details(outlet_id: str):
             "Predicted_Maximum_Liters": calculated_potential,
             "Schools_Nearby": schools,
             "Competitors_Nearby": competitors,
-            "Market_Saturation_Index": round(saturation_index, 2)
+            "Market_Saturation_Index": round(saturation_index, 2),
+            "Trade_Spend_Allocation": trade_spend,
+            "Allocation_Status": allocation_status,
+            "In_WP_Scope": in_wp_scope
         }
         
     except Exception as e:
