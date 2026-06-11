@@ -113,12 +113,14 @@ def get_outlet_details(outlet_id: str):
 
         # --- Spatial lookup from dedicated Silver layer CSV ---
         schools = 0
+        hospitals = 0
         competitors = 0
         if not global_spatial_df.empty:
             sp_match = global_spatial_df[global_spatial_df['MATCH_KEY'] == target_id]
             if not sp_match.empty:
                 sp_row = sp_match.iloc[0]
                 schools = count_array_elements(sp_row.get('school_distances_m', '[]'))
+                hospitals = count_array_elements(sp_row.get('hospital_distances_m', '[]'))
                 competitors = count_array_elements(sp_row.get('competitor_distances_m', '[]'))
 
         saturation_index = float(1.0 / (1.0 + 0.15 * competitors)) if competitors > 0 else 1.0
@@ -166,6 +168,7 @@ def get_outlet_details(outlet_id: str):
             "Base_Historical_Max": dynamic_historical_base,
             "Predicted_Maximum_Liters": calculated_potential,
             "Schools_Nearby": schools,
+            "Hospitals_Nearby": hospitals,
             "Competitors_Nearby": competitors,
             "Market_Saturation_Index": round(saturation_index, 2),
             "Trade_Spend_Allocation": trade_spend,

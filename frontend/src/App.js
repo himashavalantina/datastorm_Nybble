@@ -79,6 +79,7 @@ function App() {
   const historicalCeiling = outletData ? (outletData.Base_Historical_Max ?? outletData.HISTORICAL_MAX_VOLUME ?? 0) : 0;
   const latentPotential = outletData ? (outletData.Predicted_Maximum_Liters ?? outletData.MAXIMUM_MONTHLY_LITERS ?? 0) : 0;
   const educationHubs = outletData ? (outletData.Schools_Nearby ?? outletData.SCHOOLS_COUNT ?? 0) : 0;
+  const hospitalCount = outletData ? (outletData.Hospitals_Nearby ?? outletData.HOSPITALS_COUNT ?? 0) : 0;
   const saturationIndex = outletData ? (outletData.Market_Saturation_Index ?? outletData.SATURATION_FACTOR ?? 1.0) : 1.0;
   const tradeSpend = outletData ? (outletData.Trade_Spend_Allocation ?? 0) : 0;
   const inWpScope = outletData ? (outletData.In_WP_Scope ?? false) : false;
@@ -388,6 +389,10 @@ function App() {
                     <div className="metric-row">
                       <span className="metric-label">Nearby Education Hubs:</span>
                       <span className="metric-value">{educationHubs}</span>
+                    </div>
+                    <div className="metric-row">
+                      <span className="metric-label">Nearby Hospitals:</span>
+                      <span className="metric-value">{hospitalCount}</span>
                     </div>
                     <div className="metric-row">
                       <span className="metric-label">Market Saturation:</span>
