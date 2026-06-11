@@ -411,6 +411,7 @@ function App() {
           <div className="footer-left">
             <span className="footer-label">Organized By</span>
             <span className="footer-text">Rotaract Club of University of Moratuwa</span>
+            <span className="footer-text">Rotaract Club of University of Colombo</span>
           </div>
           <div className="footer-right">
             <span className="footer-label">Powered By</span>
