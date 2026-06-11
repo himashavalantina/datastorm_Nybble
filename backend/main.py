@@ -57,8 +57,8 @@ def get_all_outlets():
         raise HTTPException(status_code=500, detail="Data source not available on server.")
     
     try:
-        # Use bulletproof JSON serialization (prevents Vercel crash on blank cells)
-        json_string = global_df.head(1000).to_json(orient='records')
+        # Use bulletproof JSON serialization on ALL records, no artificial cap
+        json_string = global_df.to_json(orient='records')
         records = json.loads(json_string)
         return {"outlets": records}
     except Exception as e:
