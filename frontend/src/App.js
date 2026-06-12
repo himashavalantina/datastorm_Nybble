@@ -7,7 +7,7 @@ function App() {
   const [outletId, setOutletId] = useState('OUT_00001');
   const [outletData, setOutletData] = useState(null);
   const [explanation, setExplanation] = useState('');
-  const [displayedText, setDisplayedText] = useState(''); 
+  const [displayedText, setDisplayedText] = useState('');
   const [loadingMetrics, setLoadingMetrics] = useState(false);
   const [loadingAi, setLoadingAi] = useState(false);
   const [error, setError] = useState(null);
@@ -48,7 +48,7 @@ function App() {
     setError(null);
     setExplanation('');
     setDisplayedText('');
-    
+
     try {
       const response = await fetch(`http://localhost:8000/api/outlets/${targetId}`, { cache: 'no-store' });
       if (!response.ok) throw new Error('Outlet not found');
@@ -92,7 +92,7 @@ function App() {
 
   // Calculate volume lift percentage based on mapped production metrics
   const volumeLift = historicalCeiling > 0 ? (((latentPotential - historicalCeiling) / historicalCeiling) * 100).toFixed(1) : 0;
-  
+
   const getSaturationBadge = (index) => {
     if (index < 0.6) return { text: 'HIGH SATURATION', class: 'badge-high' };
     if (index < 0.9) return { text: 'MEDIUM SATURATION', class: 'badge-mid' };
@@ -121,7 +121,7 @@ function App() {
   return (
     <div className="app-wrapper">
       <div className="dashboard-container">
-        
+
         <header className="dashboard-header">
           <div className="header-top">
             <div className="logo-group">
@@ -152,7 +152,7 @@ function App() {
         </div>
 
         <main className="dashboard-content">
-          
+
           {/* LANDING VIEW */}
           {activeView === 'landing' && (
             <section className="landing-section slide-up">
@@ -357,9 +357,9 @@ function App() {
                   <section className="metrics-card">
                     <div className="card-header">
                       <h3>VOLUME POTENTIAL</h3>
-                      <span className="roi-badge">📈 +{volumeLift}% LIFT</span>
+                      <span className="roi-badge">📈 {volumeLift}% LIFT</span>
                     </div>
-                    
+
                     <div className="metric-row">
                       <span className="metric-label">Historical Ceiling:</span>
                       <span className="metric-value">{historicalCeiling} L</span>
@@ -372,8 +372,8 @@ function App() {
                     <div className="chart-container">
                       <ResponsiveContainer width="100%" height={150}>
                         <BarChart data={chartData}>
-                          <Tooltip cursor={{fill: '#ffffff10'}} contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #0BDA51' }}/>
-                          <XAxis dataKey="name" stroke="#ffffff" fontSize={12} tickLine={false} axisLine={false}/>
+                          <Tooltip cursor={{ fill: '#ffffff10' }} contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #0BDA51' }} />
+                          <XAxis dataKey="name" stroke="#ffffff" fontSize={12} tickLine={false} axisLine={false} />
                           <Bar dataKey="Volume" radius={[4, 4, 0, 0]}>
                             {chartData.map((entry, index) => (
                               <Cell key={`cell-${index}`} fill={index === 0 ? '#00BFFF' : '#29E373'} />
@@ -384,7 +384,7 @@ function App() {
                     </div>
 
                     <hr className="divider" />
-                    
+
                     <h3>CATCHMENT FACTORS</h3>
                     <div className="metric-row">
                       <span className="metric-label">Nearby Education Hubs:</span>
@@ -404,15 +404,17 @@ function App() {
                     <hr className="divider" />
 
                     <h3>💰 BUDGET ALLOCATION</h3>
-                    {(() => { const b = getBudgetBadge(); return (
-                      <div className={`budget-status-banner ${b.cls}`}>
-                        <div className="budget-status-icon">{b.icon}</div>
-                        <div className="budget-status-text">
-                          <span className="budget-status-label">{b.label}</span>
-                          <span className="budget-status-sub">{b.sub}</span>
+                    {(() => {
+                      const b = getBudgetBadge(); return (
+                        <div className={`budget-status-banner ${b.cls}`}>
+                          <div className="budget-status-icon">{b.icon}</div>
+                          <div className="budget-status-text">
+                            <span className="budget-status-label">{b.label}</span>
+                            <span className="budget-status-sub">{b.sub}</span>
+                          </div>
                         </div>
-                      </div>
-                    ); })()}
+                      );
+                    })()}
                     {tradeSpend > 0 && (
                       <div className="budget-details">
                         <div className="budget-detail-row">
@@ -433,7 +435,7 @@ function App() {
                     <button className="ai-btn" onClick={generateInsights} disabled={loadingAi}>
                       {loadingAi ? 'NEURAL NET PROCESSING...' : '⚡ GENERATE INSIGHTS'}
                     </button>
-                    
+
                     {explanation && (
                       <div className="explanation-box">
                         <div className="ai-header"><span className="blink-cursor">_</span> SYSTEM RESPONSE</div>
@@ -453,7 +455,7 @@ function App() {
           <div className="footer-left">
             <span className="footer-label">Organized By</span>
             <span className="footer-text">Rotaract Club of University of Moratuwa</span>
-            <span className="footer-text">Rotaract Club of University of Colombo</span>
+            <span className="footer-text">Rotaract Club of Faculty of Science, University of Colombo</span>
           </div>
           <div className="footer-right">
             <span className="footer-label">Powered By</span>

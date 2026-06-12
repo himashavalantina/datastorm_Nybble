@@ -185,19 +185,19 @@ def generate_xai_explanation(outlet_id: str):
     data = get_outlet_details(outlet_id)
     
     prompt = f"""
-    You are an AI Trade Marketing Analyst. Explain the sales potential for Sri Lankan retail outlet {data['Outlet_ID']}.
+    You are a Retail Sales Advisor explaining sales opportunities to a local shop manager. 
+    Explain the sales potential for outlet {data['Outlet_ID']} using simple, everyday business language.
     
-    Data Points:
-    - Base Historical Sales: {data['Base_Historical_Max']} liters
-    - AI Predicted Potential: {data['Predicted_Maximum_Liters']} liters
-    - Local Schools Nearby: {data['Schools_Nearby']}
-    - Nearby Competitors: {data['Competitors_Nearby']}
-    - Market Saturation Score (0-1, lower means more crowded penalty): {data['Market_Saturation_Index']}
+    Here is the data:
+    - Current/Past Peak Sales: {data['Base_Historical_Max']} liters
+    - Predicted Sales Potential: {data['Predicted_Maximum_Liters']} liters
+    - Schools nearby: {data['Schools_Nearby']}
+    - Competitor shops nearby: {data['Competitors_Nearby']}
     
     Task:
-    Write a short, 3-sentence explanation in simple business language for a non-technical sales manager. 
-    Explain WHY the predicted potential fluctuates against historical sales, factoring in the schools footprints 
-    and competitive market density constraints. Do not use complex math jargon.
+    Write a warm, simple 3-sentence explanation for the sales manager.
+    Explain how the nearby schools help increase potential sales (by bringing in more foot traffic), while local competitors share the market, which is why the predicted potential is set at {data['Predicted_Maximum_Liters']} liters compared to the historical {data['Base_Historical_Max']} liters.
+    Do NOT use data science or technical jargon like 'fluctuates', 'saturation index', 'density constraints', 'bounding factor', 'education assets', or 'coefficients'. Keep it simple, friendly, and practical.
     """
     
     try:
@@ -208,7 +208,7 @@ def generate_xai_explanation(outlet_id: str):
             )
             explanation = response.text
         else:
-            explanation = f"Analytical Dashboard Insights: Predicted volume balances out at {data['Predicted_Maximum_Liters']}L. Proximity logs confirm {data['Schools_Nearby']} education assets expanding immediate consumer foot traffic limits, while micro-market competition triggers a protective saturation index bounding factor of {data['Market_Saturation_Index']} to stabilize demand allocations."
+            explanation = f"We estimate this shop's sales potential at {data['Predicted_Maximum_Liters']} liters. Having {data['Schools_Nearby']} school(s) nearby brings more customer traffic, which boosts potential. However, with {data['Competitors_Nearby']} competitor(s) in the area, the local market is shared, which balances the final sales prediction compared to the historical peak of {data['Base_Historical_Max']} liters."
         
         return {"explanation": explanation}
         
