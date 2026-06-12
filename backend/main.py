@@ -42,6 +42,15 @@ try:
         global_df['Distributor'] = global_df['Distributor_ID']
     if 'Maximum_Monthly_Liters' in global_df.columns and 'Predicted_Maximum_Liters' not in global_df.columns:
         global_df['Predicted_Maximum_Liters'] = global_df['Maximum_Monthly_Liters']
+        
+    # Merge real historical baseline to ensure correct historical ceiling and lift percentage
+    _baseline_path = os.path.join(base_dir, '..', 'data', 'silver', 'base_potential_baseline.csv')
+    if os.path.exists(_baseline_path):
+        df_base = pd.read_csv(_baseline_path)
+        df_base.columns = df_base.columns.str.strip()
+        if 'Outlet_ID' in df_base.columns and 'Historical_Max_Volume' in df_base.columns:
+            global_df = global_df.merge(df_base[['Outlet_ID', 'Historical_Max_Volume']], on='Outlet_ID', how='left')
+            global_df['Base_Historical_Max'] = global_df['Historical_Max_Volume']
 except Exception as e:
     print(f"Warning: Could not load initial data file: {e}")
     global_df = pd.DataFrame()
