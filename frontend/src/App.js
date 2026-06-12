@@ -19,7 +19,7 @@ function App() {
 
   // Fetch Directory Data on Load (POINTED TO VERCEL)
   useEffect(() => {
-    fetch(`http://localhost:8000/api/outlets`)
+    fetch(`https://datastorm-backend.vercel.app/api/outlets`)
       .then(res => res.json())
       .then(data => setAllOutlets(data.outlets || []))
       .catch(err => console.error("Failed to load directory", err));
@@ -50,7 +50,7 @@ function App() {
     setDisplayedText('');
 
     try {
-      const response = await fetch(`http://localhost:8000/api/outlets/${targetId}`, { cache: 'no-store' });
+      const response = await fetch(`https://datastorm-backend.vercel.app/api/outlets/${targetId}`, { cache: 'no-store' });
       if (!response.ok) throw new Error('Outlet not found');
       const data = await response.json();
       setOutletData(data);
@@ -65,7 +65,7 @@ function App() {
   const generateInsights = async () => {
     setLoadingAi(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/explain/${outletId}`, { method: 'POST' });
+      const response = await fetch(`https://datastorm-backend.vercel.app/api/explain/${outletId}`, { method: 'POST' });
       const data = await response.json();
       setExplanation(data.explanation);
     } catch (err) {
