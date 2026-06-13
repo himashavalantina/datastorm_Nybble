@@ -85,8 +85,9 @@ def optimize_marketing_spend(df_gold, total_budget=5000000):
     df_wp['Incremental_Volume'] = df_wp['Maximum_Monthly_Liters'] - df_wp.get('Historical_Max_Volume', df_wp['Maximum_Monthly_Liters'] * 0.8)
     df_wp['Incremental_Volume'] = df_wp['Incremental_Volume'].clip(lower=0)
     
-    cost_mapping = {'LARGE': 25000, 'MEDIUM': 15000, 'SMALL': 5000}
-    df_wp['Investment_Cost'] = df_wp['Outlet_Size'].astype(str).str.upper().map(cost_mapping).fillna(10000)
+    cost_mapping = {'LARGE': 41000, 'MEDIUM': 12000, 'SMALL': 8000, 'EXTRA LARGE': 26000}
+    df_wp['Investment_Cost'] = df_wp['Outlet_Size'].astype(str).str.upper().map(cost_mapping).fillna(26000)
+
     
     prob = LpProblem("Marketing_Spend_Optimization", LpMaximize)
     outlet_ids = df_wp['Outlet_ID'].tolist()

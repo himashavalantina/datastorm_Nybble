@@ -423,7 +423,8 @@ function App() {
                         </div>
                         <div className="budget-detail-row">
                           <span className="metric-label">Outlet Investment Tier:</span>
-                          <span className="tier-badge">{tradeSpend >= 25000 ? 'LARGE' : tradeSpend >= 15000 ? 'MEDIUM' : 'SMALL'}</span>
+                          <span className="tier-badge">{tradeSpend >= 41000 ? 'LARGE' : tradeSpend >= 26000 ? 'EXTRA LARGE' : tradeSpend >= 12000 ? 'MEDIUM' : 'SMALL'}</span>
+
                         </div>
                       </div>
                     )}
