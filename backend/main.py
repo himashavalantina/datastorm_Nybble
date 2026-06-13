@@ -44,7 +44,7 @@ try:
         global_df['Predicted_Maximum_Liters'] = global_df['Maximum_Monthly_Liters']
         
     # Merge real historical baseline to ensure correct historical ceiling and lift percentage
-    _baseline_path = os.path.join(base_dir, '..', 'data', 'silver', 'base_potential_baseline.csv')
+    _baseline_path = os.path.join(base_dir, 'base_potential_baseline.csv')
     if os.path.exists(_baseline_path):
         df_base = pd.read_csv(_baseline_path)
         df_base.columns = df_base.columns.str.strip()
@@ -58,7 +58,7 @@ except Exception as e:
 # Load spatial distance arrays (school, competitor, etc.) — separate Silver layer file
 _abs_dir = os.path.dirname(os.path.abspath(__file__))
 try:
-    _spatial_path = os.path.join(_abs_dir, '..', 'data', 'silver', 'cleaned_spatial_data.csv')
+    _spatial_path = os.path.join(base_dir, 'cleaned_spatial_data.csv')
     global_spatial_df = pd.read_csv(_spatial_path)
     global_spatial_df.columns = global_spatial_df.columns.str.strip()
     global_spatial_df['MATCH_KEY'] = global_spatial_df['Outlet_ID'].astype(str).str.strip().str.upper()
@@ -69,7 +69,7 @@ except Exception as e:
 
 # Load LP budget allocations globally (Gold layer)
 try:
-    _budget_path = os.path.join(_abs_dir, '..', 'data', 'gold', 'nybble_budget_allocations.csv')
+    _budget_path = os.path.join(base_dir, 'nybble_budget_allocations.csv')
     global_budget_df = pd.read_csv(_budget_path)
     global_budget_df['MATCH_KEY'] = global_budget_df['Outlet_ID'].astype(str).str.strip().str.upper()
     print(f"Budget data loaded: {len(global_budget_df)} outlets, {(global_budget_df['Trade_Spend_Allocation']>0).sum()} selected")
