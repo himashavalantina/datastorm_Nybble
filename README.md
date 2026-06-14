@@ -1,5 +1,9 @@
 # Data Storm 7.0 - Team Nybble: Enterprise Latent Potential Estimator
 
+🏆 **Top 10 Finalist - Data Storm 7.0 (Powered by OCTAVE)**
+
+🌐 **Live Application:** [datastorm-team-nybble-frontend.vercel.app](https://datastorm-team-nybble-frontend.vercel.app)
+
 This repository contains the end-to-end data pipeline, predictive modeling solution, and enterprise web application for estimating the Maximum Monthly Purchase Potential of traditional FMCG retail outlets. 
 
 This project was developed across two phases: the **Storming Round** (establishing a Lakehouse architecture and unconstrained baseline) and the **Final Prototype Phase** (implementing spatial distance-decay math, Linear Programming budget optimization, and a full-stack XAI dashboard).
@@ -53,6 +57,12 @@ cd frontend
 npm install recharts
 ``` 
 
+Environment Variables:
+To utilize the AI Strategic Advisor locally, you must set your Gemini API key in your environment before starting the backend server.
+```bash
+export GEMINI_API_KEY="your_api_key_here"
+```
+
 End-to-End Execution Pipeline
 -----------------------------
 
@@ -105,6 +115,8 @@ npm start
 ```
 
 Access the dashboard at http://localhost:3000 to view interactive predictions, localized catchment data, and dynamic AI strategic insights
+
+*Note: The system is currently deployed serverless via Vercel. The decoupled architecture allows the React frontend to communicate directly with the live FastAPI production backend without requiring local execution.*
 
 GenAI Transparency Log
 ----------------------
